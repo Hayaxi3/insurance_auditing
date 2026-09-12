@@ -14,3 +14,5 @@
 
 
 **Evaluation and limits:** I used Hospital 1 labels to evaluate results and investigate errors, not to copy answers into predictions. Two Hospital 1 invoices still have incorrect error categories related to service matching. Confidence scores describe evidence strength, not calibrated probabilities. Hospitals 4 and 5 have no supplied labels, so I do not claim an accuracy score for them.
+
+**Next steps:** With another week, I would first manually review a sample of Hospital 4 and 5 predictions to catch missed errors, since no labels were supplied for these hospitals. I would also check how different assumptions about unclear contract clauses change the results, improve matching for ambiguous descriptions, and extend coverage to Hospitals 2 and 3.
