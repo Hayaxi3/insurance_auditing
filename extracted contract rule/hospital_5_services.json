@@ -1,0 +1,2345 @@
+{
+  "contract_metadata": {
+    "contract_number": "INS-H5-2024-0731",
+    "provider": "Pelham Health Network",
+    "payer": "Meridian Health Assurance Group",
+    "effective_from": "1 January 2024",
+    "effective_to": "31 December 2025",
+    "currency": "GBP",
+    "rounding_convention": "half_up_cent",
+    "source_file": "contracts/hospital_5/network_reimbursement_agreement.md",
+    "preamble": [
+      "_Rates vary by facility and by patient plan tier. Table 1 gives base rates; Tables 2 and 3 give the multipliers._"
+    ],
+    "clauses": {
+      "Parties, Term and Network": [
+        "1.1 This Agreement is made between Meridian Health Assurance Group (the \"Payer\") and Pelham Health Network (the \"Provider\"), and runs from 1 January 2024 to 31 December 2025.",
+        "1.2 The Provider operates the following facilities. The facility code recorded on a line item determines which column of Table 2 applies.",
+        "1.3 Patients are enrolled in one of the following plan tiers. The plan tier recorded on an invoice determines which column of Table 3 applies to every line item on that invoice."
+      ],
+      "Interpretation": [
+        "2.1 \"Service Day\" means the calendar day recorded as the Service Date of the line item.",
+        "2.2 \"Business Day\" means any Service Day other than a Saturday or a Sunday.",
+        "2.3 \"Unit\" means one billable unit of a Service on the unit basis recorded in Table 1.",
+        "2.4 \"Effective unit rate\" means the amount produced by applying Section 3 to the base rate in Table 1."
+      ],
+      "Calculating the Effective Unit Rate": [
+        "3.1 Where more than one adjustment applies to the same Service, the adjustments shall be applied to the base rate strictly in the following order: (a) substitution of a bundled rate; (b) the facility multiplier; (c) the plan-tier multiplier; (d) any premium or uplift; and (e) any cumulative volume discount. The line total is then the resulting unit rate multiplied by the billed quantity.",
+        "3.2 All monetary amounts are expressed in whole cents. Where the application of a multiplier, premium or discount produces a fraction of a cent, the result shall be rounded to the nearest whole cent, with exact halves rounded away from zero (\"half up\"). Rounding is applied after each individual step of the calculation, not once at the end.",
+        "3.3 In full, the calculation is: take the base rate for the Service from Table 1 (or the substituted bundled rate from Section 7 where that applies); multiply by the facility multiplier for that Service and facility from Table 2; multiply by the plan-tier multiplier for that Service and tier from Table 3; apply any premium from Section 5 or Section 6; and finally apply any cumulative volume discount from Section 8. Round half up to the nearest cent after each of those steps.",
+        "3.4 A multiplier of 1.0 leaves the amount unchanged, but the rounding step is still taken."
+      ],
+      "Table 1 — Base Rates": [],
+      "Threshold Premiums": [
+        "5.1 Assessed against the aggregate quantity of the Service delivered to the Patient on the Service Day, across all line items and all invoices."
+      ],
+      "Non-Business-Day Uplifts": [],
+      "Bundled Services": [
+        "7.1 Where both Services in a pair are delivered to the same Patient on the same Service Day, the substituted rates below replace the Table 1 base rates. The facility and plan-tier multipliers are then applied to the substituted rate."
+      ],
+      "Cumulative Volume Discounts": [
+        "8.1 Cumulative utilisation is counted cumulatively across the whole term of this Agreement and aggregated across all Patients, in Service Date order, and is not reset by a change of facility or of plan tier. Where two line items share a Service Date they are counted in ascending order of line identifier. Where two thresholds are met the deeper discount applies."
+      ],
+      "Exclusion Windows": [],
+      "Invoicing": [
+        "10.1 Each invoice quotes the contract number on the face of this Agreement, the facility code and the Patient's plan tier, and carries an invoice number unique across the term.",
+        "10.2 Every Service Date falls within the term and may not fall after the invoice date.",
+        "10.3 The same Service may not be billed twice for the same Patient and the same Service Date, whether on one invoice or across several."
+      ]
+    },
+    "facilities": {
+      "F-MAIN": "Main Campus",
+      "F-NORTH": "North Annexe",
+      "F-COAST": "Coastal Satellite Unit"
+    },
+    "plan_tiers": [
+      "BRONZE",
+      "SILVER",
+      "GOLD"
+    ],
+    "multiplier_encoding": "Exact decimal strings; use Decimal, rounding half up after each step.",
+    "extraction_notes": [
+      "Facility wording refers to line items in 1.2/Table 2 and invoices in 10.1; original clauses are retained without choosing a data fallback.",
+      "Section 9 gives exclusion windows but does not explicitly state direction or patient scope; no Hospital 1 or Hospital 4 interpretation is imported.",
+      "Section 8 states subsequent units, ordering and global term utilisation; it does not explicitly specify prior-line versus within-line threshold crossing."
+    ],
+    "table_notes": {
+      "Table 2 — Facility Multipliers": [
+        "Applied to the base rate in Table 1 for the facility recorded on the line item."
+      ],
+      "Table 3 — Plan-Tier Multipliers": [
+        "Applied after the facility multiplier, for the plan tier recorded on the invoice."
+      ]
+    }
+  },
+  "services": [
+    {
+      "service_name": "Advanced Cardiac Ventilation Support",
+      "unit_basis": "per hour",
+      "rate_cents": 3375,
+      "daily_cap": 24,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Advanced Dermatologic Pharmaceutical Dispensing",
+      "unit_basis": "per item supplied",
+      "rate_cents": 8175,
+      "daily_cap": 4,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Ambulatory Hepatic Case Conference",
+      "unit_basis": "per hour",
+      "rate_cents": 19775,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 80,
+      "volume_discount_1_percent": 12,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Ambulatory Metabolic Imaging Interpretation",
+      "unit_basis": "per test",
+      "rate_cents": 3900,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 15,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Ambulatory Oncology Imaging Interpretation",
+      "unit_basis": "per test",
+      "rate_cents": 6675,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Ambulatory Paediatric Isolation Room Occupancy",
+      "unit_basis": "per day of service",
+      "rate_cents": 126525,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Assisted Cardiac Ventilation Support",
+      "unit_basis": "per day of service",
+      "rate_cents": 156675,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 20,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Assisted Hepatic Physiotherapy Session",
+      "unit_basis": "per visit",
+      "rate_cents": 19025,
+      "daily_cap": 12,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Assisted Immunologic Sterilisation Service",
+      "unit_basis": "per item supplied",
+      "rate_cents": 24500,
+      "daily_cap": null,
+      "threshold_quantity": 10,
+      "threshold_uplift_percent": 15,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Assisted Metabolic Endoscopic Procedure",
+      "unit_basis": "per procedure",
+      "rate_cents": 110150,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Assisted Renal Imaging Interpretation",
+      "unit_basis": "per procedure",
+      "rate_cents": 161650,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Bedside Oncology Transfusion Service",
+      "unit_basis": "per unit dispensed",
+      "rate_cents": 3025,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Bedside Paediatric Consultation",
+      "unit_basis": "per procedure",
+      "rate_cents": 421875,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Comprehensive Gastrointestinal Endoscopic Procedure",
+      "unit_basis": "per procedure",
+      "rate_cents": 141500,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Comprehensive Geriatric Wound Care",
+      "unit_basis": "per visit",
+      "rate_cents": 11725,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Comprehensive Metabolic Ventilation Support",
+      "unit_basis": "per day of service",
+      "rate_cents": 47650,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Comprehensive Oncology Transfusion Service",
+      "unit_basis": "per procedure",
+      "rate_cents": 414475,
+      "daily_cap": 8,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Comprehensive Ophthalmic Isolation Room Occupancy",
+      "unit_basis": "per night of occupancy",
+      "rate_cents": 105950,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": "Ambulatory Paediatric Isolation Room Occupancy",
+      "exclusion_days": 30,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Comprehensive Palliative Consultation",
+      "unit_basis": "per visit",
+      "rate_cents": 35050,
+      "daily_cap": null,
+      "threshold_quantity": 8,
+      "threshold_uplift_percent": 30,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Continuous Immunologic Laboratory Panel",
+      "unit_basis": "per item supplied",
+      "rate_cents": 7025,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Continuous Metabolic Endoscopic Procedure",
+      "unit_basis": "per procedure",
+      "rate_cents": 550750,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 80,
+      "volume_discount_1_percent": 12,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Continuous Otolaryngologic Transport Service",
+      "unit_basis": "per item supplied",
+      "rate_cents": 14675,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Continuous Pulmonary Case Conference",
+      "unit_basis": "per hour",
+      "rate_cents": 4300,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Elective Metabolic Pharmaceutical Dispensing",
+      "unit_basis": "per item supplied",
+      "rate_cents": 28450,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 100,
+      "volume_discount_1_percent": 12,
+      "volume_threshold_2": 300,
+      "volume_discount_2_percent": 25,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Elective Ophthalmic Nutritional Support",
+      "unit_basis": "per day of service",
+      "rate_cents": 94300,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": "Elective Pulmonary Radiotherapy Fraction",
+      "exclusion_days": 30,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Elective Ophthalmic Recovery Room Occupancy",
+      "unit_basis": "per night of occupancy",
+      "rate_cents": 195975,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": "Supervised Palliative Consultation",
+      "bundled_rate_cents": 172450,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Elective Pulmonary Radiotherapy Fraction",
+      "unit_basis": "per procedure",
+      "rate_cents": 353625,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Elective Vascular Diagnostic Imaging",
+      "unit_basis": "per procedure",
+      "rate_cents": 284175,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 12,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Emergency Gastrointestinal Endoscopic Procedure",
+      "unit_basis": "per procedure",
+      "rate_cents": 707500,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 20,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Emergency Metabolic Discharge Planning",
+      "unit_basis": "per visit",
+      "rate_cents": 20575,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": "Specialist Gastrointestinal Pharmaceutical Dispensing",
+      "bundled_rate_cents": 17500,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Emergency Neurological Biopsy Procedure",
+      "unit_basis": "per procedure",
+      "rate_cents": 440750,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Emergency Oncology Imaging Interpretation",
+      "unit_basis": "per procedure",
+      "rate_cents": 441250,
+      "daily_cap": 4,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Emergency Pulmonary Radiotherapy Fraction",
+      "unit_basis": "per item supplied",
+      "rate_cents": 5850,
+      "daily_cap": null,
+      "threshold_quantity": 8,
+      "threshold_uplift_percent": 20,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Emergency Urologic Home Visit",
+      "unit_basis": "per visit",
+      "rate_cents": 17325,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Extended Dermatologic Transport Service",
+      "unit_basis": "per visit",
+      "rate_cents": 14475,
+      "daily_cap": 4,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Extended Endocrine Theatre Time",
+      "unit_basis": "per hour",
+      "rate_cents": 15700,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 100,
+      "volume_discount_1_percent": 12,
+      "volume_threshold_2": 300,
+      "volume_discount_2_percent": 30,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Extended Neurological Consultation",
+      "unit_basis": "per visit",
+      "rate_cents": 17100,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 25,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Extended Ophthalmic Transport Service",
+      "unit_basis": "per item supplied",
+      "rate_cents": 27750,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Extended Psychiatric Endoscopic Procedure",
+      "unit_basis": "per procedure",
+      "rate_cents": 145200,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Extended Urologic Infusion Therapy",
+      "unit_basis": "per hour",
+      "rate_cents": 7400,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": "Standard Paediatric Radiotherapy Fraction",
+      "bundled_rate_cents": 5925,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Focused Endocrine Theatre Time",
+      "unit_basis": "per hour",
+      "rate_cents": 3925,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Focused Neurological Radiotherapy Fraction",
+      "unit_basis": "per item supplied",
+      "rate_cents": 1950,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Focused Urologic Nutritional Support",
+      "unit_basis": "per unit dispensed",
+      "rate_cents": 7700,
+      "daily_cap": null,
+      "threshold_quantity": 8,
+      "threshold_uplift_percent": 40,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Inpatient Dermatologic Nursing Observation",
+      "unit_basis": "per day of service",
+      "rate_cents": 132400,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 100,
+      "volume_discount_1_percent": 12,
+      "volume_threshold_2": 300,
+      "volume_discount_2_percent": 20,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Inpatient Immunologic Recovery Room Occupancy",
+      "unit_basis": "per hour",
+      "rate_cents": 9500,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": "Ambulatory Oncology Imaging Interpretation",
+      "exclusion_days": 14,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Inpatient Psychiatric Case Conference",
+      "unit_basis": "per hour",
+      "rate_cents": 12175,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Inpatient Pulmonary Critical Care Occupancy",
+      "unit_basis": "per night of occupancy",
+      "rate_cents": 57800,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Intensive Hepatic Case Conference",
+      "unit_basis": "per visit",
+      "rate_cents": 21375,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Intensive Oncology Sterilisation Service",
+      "unit_basis": "per procedure",
+      "rate_cents": 247750,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 120,
+      "volume_discount_1_percent": 10,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Intermittent Orthopaedic Discharge Planning",
+      "unit_basis": "per visit",
+      "rate_cents": 37375,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": "Preoperative Paediatric Biopsy Procedure",
+      "exclusion_days": 14,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Intermittent Urologic Discharge Planning",
+      "unit_basis": "per hour",
+      "rate_cents": 12125,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": "Continuous Pulmonary Case Conference",
+      "exclusion_days": 10,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Intermittent Vascular Telemetry Monitoring",
+      "unit_basis": "per hour",
+      "rate_cents": 3850,
+      "daily_cap": 8,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Outpatient Dermatologic Home Visit",
+      "unit_basis": "per visit",
+      "rate_cents": 19375,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Outpatient Haematology Laboratory Panel",
+      "unit_basis": "per item supplied",
+      "rate_cents": 19050,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 20,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Outpatient Metabolic Physiotherapy Session",
+      "unit_basis": "per hour",
+      "rate_cents": 16725,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 10,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Outpatient Neurological Recovery Room Occupancy",
+      "unit_basis": "per night of occupancy",
+      "rate_cents": 111475,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Outpatient Psychiatric Discharge Planning",
+      "unit_basis": "per visit",
+      "rate_cents": 19300,
+      "daily_cap": null,
+      "threshold_quantity": 10,
+      "threshold_uplift_percent": 30,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Postoperative Musculoskeletal Imaging Interpretation",
+      "unit_basis": "per procedure",
+      "rate_cents": 431375,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 20,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Preoperative Endocrine Rehabilitation Programme",
+      "unit_basis": "per visit",
+      "rate_cents": 33725,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": "Ambulatory Paediatric Isolation Room Occupancy",
+      "exclusion_days": 10,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Preoperative Gastrointestinal Nutritional Support",
+      "unit_basis": "per unit dispensed",
+      "rate_cents": 3750,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 120,
+      "volume_discount_1_percent": 10,
+      "volume_threshold_2": 360,
+      "volume_discount_2_percent": 25,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Preoperative Immunologic Recovery Room Occupancy",
+      "unit_basis": "per night of occupancy",
+      "rate_cents": 142550,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": 12,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Preoperative Musculoskeletal Nutritional Support",
+      "unit_basis": "per unit dispensed",
+      "rate_cents": 6675,
+      "daily_cap": null,
+      "threshold_quantity": 8,
+      "threshold_uplift_percent": 25,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Preoperative Ophthalmic Transport Service",
+      "unit_basis": "per visit",
+      "rate_cents": 13975,
+      "daily_cap": 6,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "1.05"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Preoperative Paediatric Biopsy Procedure",
+      "unit_basis": "per item supplied",
+      "rate_cents": 15675,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Routine Dermatologic Home Visit",
+      "unit_basis": "per visit",
+      "rate_cents": 96875,
+      "daily_cap": null,
+      "threshold_quantity": 12,
+      "threshold_uplift_percent": 30,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Routine Geriatric Telemetry Monitoring",
+      "unit_basis": "per day of service",
+      "rate_cents": 126725,
+      "daily_cap": null,
+      "threshold_quantity": 16,
+      "threshold_uplift_percent": 15,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Routine Infectious Infusion Therapy",
+      "unit_basis": "per unit dispensed",
+      "rate_cents": 7150,
+      "daily_cap": 24,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Routine Neurological Biopsy Procedure",
+      "unit_basis": "per item supplied",
+      "rate_cents": 18625,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Routine Psychiatric Physiotherapy Session",
+      "unit_basis": "per visit",
+      "rate_cents": 30950,
+      "daily_cap": null,
+      "threshold_quantity": 12,
+      "threshold_uplift_percent": 15,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Routine Psychiatric Telemetry Monitoring",
+      "unit_basis": "per hour, per item",
+      "rate_cents": 2950,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Routine Urologic Radiotherapy Fraction",
+      "unit_basis": "per item supplied",
+      "rate_cents": 5100,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Routine Urologic Transport Service",
+      "unit_basis": "per visit",
+      "rate_cents": 15250,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": "Inpatient Pulmonary Critical Care Occupancy",
+      "exclusion_days": 10,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Specialist Dermatologic Nursing Observation",
+      "unit_basis": "per hour",
+      "rate_cents": 10450,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Specialist Gastrointestinal Pharmaceutical Dispensing",
+      "unit_basis": "per unit dispensed",
+      "rate_cents": 4125,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": "Emergency Metabolic Discharge Planning",
+      "bundled_rate_cents": 3500,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Specialist Metabolic Sterilisation Service",
+      "unit_basis": "per item supplied",
+      "rate_cents": 19825,
+      "daily_cap": null,
+      "threshold_quantity": 12,
+      "threshold_uplift_percent": 25,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Standard Infectious Ventilation Support",
+      "unit_basis": "per hour",
+      "rate_cents": 19225,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Standard Paediatric Radiotherapy Fraction",
+      "unit_basis": "per procedure",
+      "rate_cents": 117900,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": "Extended Urologic Infusion Therapy",
+      "bundled_rate_cents": 94325,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.1",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "0.98",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Standard Psychiatric Discharge Planning",
+      "unit_basis": "per hour",
+      "rate_cents": 5200,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Supervised Immunologic Sterilisation Service",
+      "unit_basis": "per procedure",
+      "rate_cents": 268575,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 100,
+      "volume_discount_1_percent": 15,
+      "volume_threshold_2": 300,
+      "volume_discount_2_percent": 25,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.2",
+        "F-COAST": "0.92"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "0.9"
+      }
+    },
+    {
+      "service_name": "Supervised Metabolic Discharge Planning",
+      "unit_basis": "per hour",
+      "rate_cents": 16775,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.08",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Supervised Otolaryngologic Specimen Analysis",
+      "unit_basis": "per item supplied",
+      "rate_cents": 28300,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": 60,
+      "volume_discount_1_percent": 10,
+      "volume_threshold_2": 180,
+      "volume_discount_2_percent": 20,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.95"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1.05",
+        "SILVER": "1",
+        "GOLD": "0.95"
+      }
+    },
+    {
+      "service_name": "Supervised Palliative Consultation",
+      "unit_basis": "per procedure",
+      "rate_cents": 441425,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": "Elective Ophthalmic Recovery Room Occupancy",
+      "bundled_rate_cents": 388450,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1.15",
+        "F-COAST": "0.9"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "0.98",
+        "GOLD": "0.92"
+      }
+    },
+    {
+      "service_name": "Supervised Vascular Consultation",
+      "unit_basis": "per procedure",
+      "rate_cents": 156100,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    },
+    {
+      "service_name": "Supervised Vascular Diagnostic Imaging",
+      "unit_basis": "per test",
+      "rate_cents": 20175,
+      "daily_cap": null,
+      "threshold_quantity": null,
+      "threshold_uplift_percent": null,
+      "weekend_uplift_percent": null,
+      "volume_threshold_1": null,
+      "volume_discount_1_percent": null,
+      "volume_threshold_2": null,
+      "volume_discount_2_percent": null,
+      "bundle_with": null,
+      "bundled_rate_cents": null,
+      "exclusion_with": null,
+      "exclusion_days": null,
+      "facility_multipliers": {
+        "F-MAIN": "1",
+        "F-NORTH": "1",
+        "F-COAST": "1"
+      },
+      "plan_tier_multipliers": {
+        "BRONZE": "1",
+        "SILVER": "1",
+        "GOLD": "1"
+      }
+    }
+  ]
+}

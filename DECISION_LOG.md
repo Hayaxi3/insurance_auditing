@@ -1,0 +1,16 @@
+﻿# Decision Log
+
+**What I tried:** I first experimented with Hugging Face models and the Gemini API, but limited computing resources and API quotas made them impractical for processing the full dataset. I therefore used Claude for semantic service matching and saved the resulting matches so the final pipeline can be reproduced without calling a model or API again.
+
+| Issue | Decision |
+| --- | --- |
+| Hospital coverage | I used Hospital 1 for development because labels were provided. For the final submission, I focused on Hospitals 4 and 5 because their contracts were clearer and could be implemented reliably within the available time. Hospitals 2 and 3 had longer and more complex contract documents that would have required more time. |
+| Service matching | Claude was used to interpret abbreviated invoice descriptions and match them to contract services. The service name was the main evidence for a match. When more than one service was a reasonable candidate, the billed unit and price were used only to help choose between those candidates. Python then handled all billing rules and calculations. |
+| Unclear services | I used `UNKNOWN` when the description provided enough information to conclude that the service was not in the contract. I used `UNSURE` when the description was  incomplete or ambiguous to identify a service confidently.|
+| Volume discounts | Some services receive a discount after their total usage exceeds a threshold. I used the provided invoices to count usage separately for each service. The charge that took usage above the threshold kept its existing rate; the new discount started with the next charge for that service. I combined usage across patients, as Hospital 5 explicitly requires. For Hospital 4, I adopted the same approach because its volume-discount clause does not specify a per-patient calculation. |
+| Hospital 5 exclusions and facility | The contract was unclear about whether exclusion windows apply before, after, or on both sides of the service date. I checked both before and after for the same patient, including the first and last day of the stated window. Hospital 5 also uses different prices by facility, so I used the facility code on the corresponding invoice. |
+| Repeated invoice IDs | Some invoice IDs were used for more than one invoice record, so the invoice ID alone was not always enough to correctly connect line items with the corresponding patient and invoice details. I used the supplied JSONL files because they store each invoice together with its patient details and line items. This allowed me to preserve the correct relationships when checking duplicate charges and exclusions. |
+| Malformed dates | Some service dates were invalid, so I could not verify whether the services occurred within the contract period. I kept these date errors flagged, but still calculated provisional expected totals when the correct price and quantity could be determined without the service date. |
+
+
+**Evaluation and limits:** I used Hospital 1 labels to evaluate results and investigate errors, not to copy answers into predictions. Two Hospital 1 invoices still have incorrect error categories related to service matching. Confidence scores describe evidence strength, not calibrated probabilities. Hospitals 4 and 5 have no supplied labels, so I do not claim an accuracy score for them.
