@@ -1,7 +1,3 @@
-"""Shared helpers with explicit hospital-specific contract behavior.
-Run with --hospital 1, 4 or 5.
-"""
-
 from pathlib import Path
 import argparse
 import json
@@ -15,6 +11,14 @@ SOURCE_1 = ROOT / "contracts/hospital_1/provider_services_agreement.md"
 
 
 OUTPUT_1 = ROOT / "extracted contract rule/hospital_1_services.json"
+
+SOURCE_2 = ROOT / "contracts/hospital_2/master_services_agreement.md"
+OUTPUT_2 = ROOT / "extracted contract rule/hospital_2_services.json"
+
+SOURCE_3_BASE = ROOT / "contracts/hospital_3/base_agreement.md"
+SOURCE_3_RATES = ROOT / "contracts/hospital_3/appendix_b_rate_schedule.md"
+SOURCE_3_AMENDMENT = ROOT / "contracts/hospital_3/amendment_no_1.md"
+OUTPUT_3 = ROOT / "extracted contract rule/hospital_3_services.json"
 
 
 RULE_FIELDS = (
@@ -147,6 +151,175 @@ def extract_hospital_1(text):
         if row["volume_threshold_2"] is not None:
             if row["volume_threshold_2"] <= row["volume_threshold_1"]:
                 raise ValueError(f"Volume thresholds out of order: {row['service_name']}")
+    return {"contract_metadata": metadata, "services": services}
+
+
+def document_metadata(text):
+    metadata = {label.lower().replace(" ", "_"): value.strip()
+                for label, value in re.findall(r"^\*\*(.+?):\*\* (.+)$", text, re.MULTILINE)}
+    required = ("contract_number", "provider", "payer", "effective_from", "effective_to",
+                "currency", "rounding_convention")
+    for key in required:
+        if not metadata.get(key):
+            raise ValueError(f"Missing metadata: {key}")
+    if metadata["currency"] != "GBP" or metadata["rounding_convention"] != "half_up_cent":
+        raise ValueError("Unsupported currency or rounding convention")
+    return metadata
+
+
+def extract_hospital_2(text):
+    metadata = document_metadata(text)
+    metadata["source_file"] = SOURCE_2.relative_to(ROOT).as_posix()
+    facility = re.search(r"delivers the Services from (.+?) \(([^)]+)\)", text)
+    if not facility:
+        raise ValueError("Missing facility metadata")
+    metadata.update(facility_name=facility[1], facility_code=facility[2])
+    metadata["clauses"] = re.findall(r"^\d+\.\d+ .+$", text, re.MULTILINE)
+    pattern = re.compile(r"^\d+\.\d+ In respect of (.+?), the Provider shall invoice the Payer "
+                         r"at the rate of (GBP [\d,]+\.\d{2}) (per .+?)\. (.*)$", re.MULTILINE)
+    services = []
+    for name, rate, basis, body in pattern.findall(text):
+        row = dict(service_name=name, unit_basis=basis, rate_cents=money_cents(rate),
+                   **{field: None for field in RULE_FIELDS})
+        cap = re.search(r"shall not bill more than [a-z -]+ \((\d+)\) [a-z ]+ "
+                        r"of this Service for a Patient on a single Service Day", body)
+        if cap:
+            row["daily_cap"] = int(cap[1])
+        threshold = re.search(r"aggregate quantity .*? exceeds [a-z -]+ \((\d+)\) [a-z]+, "
+                              r"the rate .*? increased by [a-z -]+ percent \((\d+)%\)", body)
+        if threshold:
+            row["threshold_quantity"] = int(threshold[1])
+            row["threshold_uplift_percent"] = int(threshold[2])
+        weekend = re.search(r"does not fall on a Business Day, the rate .*? increased by "
+                            r"[a-z -]+ percent \((\d+)%\)", body)
+        if weekend:
+            row["weekend_uplift_percent"] = int(weekend[1])
+        discounts = re.findall(r"cumulative utilisation .*? exceeds [a-z -]+ \((\d+)\) [a-z]+,.*?"
+                               r"discount of [a-z -]+ percent \((\d+)%\)", body)
+        if len(discounts) > 2:
+            raise ValueError(f"More than two volume thresholds for {name}")
+        for slot, (limit, discount) in enumerate(discounts, 1):
+            row[f"volume_threshold_{slot}"] = int(limit)
+            row[f"volume_discount_{slot}_percent"] = int(discount)
+        bundle = re.search(r"this Service and (.+?) are both delivered .*? bundle, this Service at "
+                           r"(GBP [\d,]+\.\d{2}) .+? and .+? at (GBP [\d,]+\.\d{2}) ", body)
+        if bundle:
+            row["bundle_with"] = bundle[1]
+            row["bundled_rate_cents"] = money_cents(bundle[2])
+            row["bundle_partner_rate_cents"] = money_cents(bundle[3])
+        exclusion = re.search(r"This Service is not billable where (.+?) has been delivered to the same "
+                              r"Patient within [a-z -]+ \((\d+)\) days of the Service Date", body)
+        if exclusion:
+            row["exclusion_with"] = exclusion[1]
+            row["exclusion_days"] = int(exclusion[2])
+        services.append(row)
+    if not services:
+        raise ValueError("No Hospital 2 service clauses found")
+    by_name = {row["service_name"]: row for row in services}
+    if len(by_name) != len(services):
+        raise ValueError("Duplicate Hospital 2 services")
+    for row in services:
+        partner = row.get("bundle_with")
+        if partner:
+            if partner not in by_name:
+                raise ValueError(f"Bundle references unknown service: {partner}")
+            other = by_name[partner]
+            if other["bundle_with"] not in (None, row["service_name"]):
+                raise ValueError(f"Conflicting bundle for {partner}")
+            other["bundle_with"] = row["service_name"]
+            other["bundled_rate_cents"] = row.pop("bundle_partner_rate_cents")
+    for row in services:
+        if row["exclusion_with"] and row["exclusion_with"] not in by_name:
+            raise ValueError(f"Exclusion references unknown service: {row['exclusion_with']}")
+        if row["volume_threshold_2"] is not None and row["volume_threshold_2"] <= row["volume_threshold_1"]:
+            raise ValueError(f"Volume thresholds out of order: {row['service_name']}")
+    return {"contract_metadata": metadata, "services": services}
+
+
+def extract_hospital_3(base_text, rates_text, amendment_text):
+    documents = [document_metadata(value) for value in (base_text, rates_text, amendment_text)]
+    identity = ("contract_number", "provider", "payer", "effective_from", "effective_to",
+                "currency", "rounding_convention")
+    if any(any(doc[key] != documents[0][key] for key in identity) for doc in documents[1:]):
+        raise ValueError("Hospital 3 document metadata disagree")
+    metadata = documents[0]
+    metadata["source_files"] = [path.relative_to(ROOT).as_posix() for path in
+                                (SOURCE_3_BASE, SOURCE_3_RATES, SOURCE_3_AMENDMENT)]
+    facility = re.search(r"delivers the Services from (.+?) \(([^)]+)\)", base_text)
+    if not facility:
+        raise ValueError("Missing facility metadata")
+    metadata.update(facility_name=facility[1], facility_code=facility[2])
+    metadata["clauses"] = re.findall(r"^(?:\d+|A1|B)\.\d+(?:\.\d+)? .+$",
+                                     "\n".join((base_text, rates_text, amendment_text)), re.MULTILINE)
+    rate_section = re.search(r"## B\.1 Rates\n(.*?)\n## B\.2 ", rates_text, re.DOTALL)
+    if not rate_section:
+        raise ValueError("Missing Appendix B rate section")
+    services = []
+    for name, basis, rate, cap in table(rate_section[1], ["Service", "Unit basis", "Rate", "Daily cap"]):
+        row = dict(service_name=name, unit_basis=basis, rate_cents=money_cents(rate),
+                   **{field: None for field in RULE_FIELDS})
+        row["daily_cap"] = None if cap in ("—", "â€”") else quantity(cap)
+        row["effective_rates"] = [{"effective_from": "2024-01-01", "rate_cents": row["rate_cents"]}]
+        services.append(row)
+    by_name = {row["service_name"]: row for row in services}
+    if len(by_name) != len(services):
+        raise ValueError("Duplicate Appendix B services")
+    split = re.split(r"^## \d+\. (.+)\n", base_text, flags=re.MULTILINE)
+    sections = dict(zip(split[1::2], split[2::2]))
+    def merge(name, **values):
+        if name not in by_name:
+            raise ValueError(f"Rule references unknown service: {name}")
+        for key, value in values.items():
+            if by_name[name].get(key) is not None and by_name[name][key] != value:
+                raise ValueError(f"Conflicting {key} for {name}")
+            by_name[name][key] = value
+    for name, limit, uplift in table(sections["Threshold Premiums"],
+            ["Service", "Daily quantity threshold", "Uplift"]):
+        merge(name, threshold_quantity=quantity(limit.removeprefix("more than ")),
+              threshold_uplift_percent=percent(uplift))
+    for name, uplift in table(sections["Non-Business-Day Uplifts"], ["Service", "Uplift"]):
+        merge(name, weekend_uplift_percent=percent(uplift))
+    counts = {}
+    for name, limit, discount in table(sections["Cumulative Volume Discounts"],
+            ["Service", "Cumulative utilisation", "Discount"]):
+        slot = counts.get(name, 0) + 1
+        if slot > 2:
+            raise ValueError(f"More than two volume thresholds for {name}")
+        counts[name] = slot
+        merge(name, **{f"volume_threshold_{slot}": quantity(limit.removeprefix("more than ")),
+                       f"volume_discount_{slot}_percent": percent(discount)})
+    for name, cap in table(sections["Daily Quantity Caps"],
+            ["Service", "Maximum units per Patient per Service Day"]):
+        merge(name, daily_cap=quantity(cap))
+    for a, b, rate_a, rate_b in table(sections["Bundled Services"],
+            ["Service A", "Service B", "Bundled rate A", "Bundled rate B"]):
+        merge(a, bundle_with=b, bundled_rate_cents=money_cents(rate_a))
+        merge(b, bundle_with=a, bundled_rate_cents=money_cents(rate_b))
+    for name, days, related in table(sections["Exclusion Windows"],
+            ["Service", "Not billable within", "Of this Service"]):
+        if related not in by_name:
+            raise ValueError(f"Exclusion references unknown service: {related}")
+        merge(name, exclusion_with=related, exclusion_days=quantity(days))
+    amended = re.search(r"## A1\.2 Substituted Rates\n(.*?)\n## A1\.3 ", amendment_text, re.DOTALL)
+    additions = re.search(r"## A1\.3 Additional Services\n(.*?)\n## A1\.4 ", amendment_text, re.DOTALL)
+    if not amended or not additions:
+        raise ValueError("Missing Hospital 3 amendment tables")
+    effective = "2025-01-01"
+    for name, basis, old_rate, new_rate in table(amended[1],
+            ["Service", "Unit basis", "Rate to 31 December 2024", "Rate from 1 January 2025"]):
+        row = by_name.get(name)
+        if not row or row["unit_basis"] != basis or row["rate_cents"] != money_cents(old_rate):
+            raise ValueError(f"Amendment does not match Appendix B: {name}")
+        row["effective_rates"].append({"effective_from": effective, "rate_cents": money_cents(new_rate)})
+    for name, basis, rate in table(additions[1], ["Service", "Unit basis", "Rate"]):
+        if name in by_name:
+            raise ValueError(f"Additional service already exists: {name}")
+        row = dict(service_name=name, unit_basis=basis, rate_cents=None,
+                   **{field: None for field in RULE_FIELDS})
+        row["effective_rates"] = [{"effective_from": effective, "rate_cents": money_cents(rate)}]
+        row["contracted_from"] = effective
+        services.append(row)
+        by_name[name] = row
     return {"contract_metadata": metadata, "services": services}
 
 
@@ -350,19 +523,34 @@ def extract_hospital_5(text):
     return dict(contract_metadata=metadata,services=services)
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Extract hospital contract rules")
-    parser.add_argument("--hospital", type=int, choices=(1, 4, 5), required=True)
-    args = parser.parse_args()
-    source, output, extract = {
-        1: (SOURCE_1, OUTPUT_1, extract_hospital_1),
-        4: (SOURCE_4, OUTPUT_4, extract_hospital_4),
-        5: (SOURCE_5, OUTPUT_5, extract_hospital_5),
-    }[args.hospital]
-    result = extract(source.read_text(encoding="utf-8"))
+def extract_one(hospital):
+    if hospital == 3:
+        result = extract_hospital_3(SOURCE_3_BASE.read_text(encoding="utf-8"),
+                                    SOURCE_3_RATES.read_text(encoding="utf-8"),
+                                    SOURCE_3_AMENDMENT.read_text(encoding="utf-8"))
+        output = OUTPUT_3
+    else:
+        source, output, extract = {
+            1: (SOURCE_1, OUTPUT_1, extract_hospital_1),
+            2: (SOURCE_2, OUTPUT_2, extract_hospital_2),
+            4: (SOURCE_4, OUTPUT_4, extract_hospital_4),
+            5: (SOURCE_5, OUTPUT_5, extract_hospital_5),
+        }[hospital]
+        result = extract(source.read_text(encoding="utf-8"))
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"Extracted {len(result['services'])} services to {output.relative_to(ROOT)}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Extract hospital contract rules")
+    target = parser.add_mutually_exclusive_group(required=True)
+    target.add_argument("--hospital", type=int, choices=(1, 2, 3, 4, 5),
+                        help="Extract one hospital")
+    target.add_argument("--all", action="store_true", help="Extract Hospitals 1-5")
+    args = parser.parse_args()
+    for hospital in range(1, 6) if args.all else (args.hospital,):
+        extract_one(hospital)
 
 
 if __name__ == "__main__":

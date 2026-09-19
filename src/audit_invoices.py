@@ -1,7 +1,3 @@
-"""Shared helpers with explicit hospital-specific contract behavior.
-Run with --hospital 1, 4 or 5, or --submission for the combined Hospital 4/5 output.
-"""
-
 from bisect import bisect_left
 from collections import Counter, defaultdict
 from datetime import date, datetime, timedelta
@@ -31,7 +27,7 @@ KNOWN_STATUSES = {"MATCHED", "MATCHED_BY_PRICE"}
 
 
 UNIT_BASES_1 = {"per day of service": "per_day", "per night of occupancy": "per_night",
-              "per item supplied": "per_item"}
+                "per item supplied": "per_item", "per hour, per item": "per_hour_per_item"}
 
 
 def parse_date(value):
@@ -72,7 +68,7 @@ def ordered(errors):
 
 
 def reported_errors(errors):
-    """Report specific causes per line; keep all observations in diagnostics.
+    """Report specific causes per line while retaining internal review notes.
 
     Suppression is per LINE, so a separate unexplained rate error on another
     line remains an invoice-level unit_price_mismatch.
@@ -88,7 +84,7 @@ def reported_errors(errors):
 
 def csv_write(rows, path):
     # Object dtype prevents nullable integer cents from being coerced to float.
-    pd.DataFrame(rows, dtype=object).to_csv(path, index=False)
+    pd.DataFrame(rows, dtype=object).to_csv(path, index=False, lineterminator="\n")
 
 
 def submission_confidence(items, errors, expected, header):
@@ -572,7 +568,7 @@ def evaluate(submission_path, labels_path, output_dir):
                       "missing_categories": json.dumps(ordered(t - p))}
                      for invoice_id, p, t in zip(compared["invoice_id"], predicted_sets, truth_sets) if p != t]
     pd.DataFrame(disagreements, columns=["invoice_id", "extra_categories", "missing_categories"]).to_csv(
-        output_dir / "hospital_1_category_disagreements.csv", index=False)
+        output_dir / "hospital_1_category_disagreements.csv", index=False, lineterminator="\n")
     metrics = []
     for category in ERROR_CATEGORIES:
         tp = sum(category in p and category in t for p, t in zip(predicted_sets, truth_sets))
@@ -599,10 +595,9 @@ def evaluate(submission_path, labels_path, output_dir):
 def run_hospital_1():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--evaluate", action="store_true", help="Evaluate only after predictions are saved")
-    parser.add_argument("--diagnostics", action="store_true", help="Save line/invoice audit files and summary")
     args = parser.parse_args()
     # Legacy H1 CSV has surplus empty cells; reject nonempty surplus data.
-    with (ROOT / "claude matching service/hospital_1_line_items_matched.csv").open(encoding="utf-8-sig", newline="") as stream:
+    with (ROOT / "service matches/hospital_1_line_items_matched.csv").open(encoding="utf-8-sig", newline="") as stream:
         records = list(csv.reader(stream))
     columns = records[0]
     if any(len(row) < len(columns) or any(row[len(columns):]) for row in records[1:]):
@@ -634,36 +629,81 @@ def run_hospital_1():
     output = ROOT / "outputs"
     output.mkdir(exist_ok=True)
     csv_write(submission, output / "hospital_1_prediction.csv")
-    if args.diagnostics:
-        csv_write(line_debug, output / "hospital_1_line_audit.csv")
-        csv_write(invoice_debug, output / "hospital_1_invoice_audit.csv")
     counts = Counter(e for row in submission for e in json.loads(row["error_category"]))
     print(f"Hospital 1: {len(submission)} invoices, {stats['Flagged invoices']} flagged. Saved outputs/hospital_1_prediction.csv")
-    if args.diagnostics:
-        (output / "hospital_1_audit_summary.json").write_text(
-            json.dumps({"counts": stats, "error_categories": {c: counts[c] for c in ERROR_CATEGORIES}}, indent=2) + "\n",
-            encoding="utf-8")
     if args.evaluate:
         evaluate(output / "hospital_1_prediction.csv", ROOT / "labels/hospital_1_labels.csv", output)
+
+
+def audit_hospital_2(lines, invoices, contract, line_context=None):
+    """Audit H2 using its H1-compatible calculation and invoicing conventions."""
+    if contract["contract_metadata"]["contract_number"] != "INS-H2-2024-1183":
+        raise ValueError("Expected Hospital 2 contract")
+    return audit_hospital_1(lines, invoices, contract, line_context)
+
+
+def run_hospital_2():
+    lines = pd.read_csv(ROOT / "service matches/hospital_2_line_items_matched.csv",
+                        dtype=str, keep_default_na=False)
+    invoices = pd.read_csv(ROOT / "invoices/hospital_2_invoices.csv", dtype=str,
+                           keep_default_na=False)
+    contract = json.loads((ROOT / "extracted contract rule/hospital_2_services.json")
+                          .read_text(encoding="utf-8"))
+    originals = pd.read_csv(ROOT / "invoices/hospital_2_line_items.csv", dtype=str,
+                            keep_default_na=False)
+    if not lines[list(originals.columns)].equals(originals):
+        raise ValueError("Hospital 2 matched file differs from original invoice lines")
+
+    contexts = {}
+    source_headers = []
+    jsonl = ROOT / "invoices/hospital_2_invoices.jsonl"
+    for index, text in enumerate(jsonl.read_text(encoding="utf-8").splitlines()):
+        source = json.loads(text)
+        header = {key: str(source[key]) for key in invoices.columns}
+        source_headers.append(header)
+        for item in source["line_items"]:
+            line_id = item["line_id"]
+            if line_id in contexts:
+                raise ValueError("Duplicate Hospital 2 line identifier in JSONL")
+            contexts[line_id] = dict(header, source_record=index, original=item)
+    if source_headers != invoices.to_dict("records"):
+        raise ValueError("Hospital 2 JSONL headers disagree with invoice CSV")
+    if set(contexts) != set(lines["line_id"]):
+        raise ValueError("Hospital 2 JSONL line coverage disagrees with matched CSV")
+    for row in originals.to_dict("records"):
+        if any(str(contexts[row["line_id"]]["original"][key]) != value
+               for key, value in row.items()):
+            raise ValueError("Hospital 2 JSONL line fields disagree with CSV")
+
+    submission, line_debug, invoice_debug, stats = audit_hospital_2(
+        lines, invoices, contract, contexts)
+    output = ROOT / "outputs"
+    output.mkdir(exist_ok=True)
+    csv_write(submission, output / "hospital_2_prediction.csv")
+    print(f"Hospital 2: {len(submission)} invoices, {stats['Flagged invoices']} flagged. "
+          "Saved outputs/hospital_2_prediction.csv")
 
 
 UNIT_BASES = {"per day of service": "per_day", "per night of occupancy": "per_night",
               "per item supplied": "per_item", "per hour, per item": "per_hour_per_item"}
 
 
-def audit_hospital_4(lines, invoices, contract, line_context=None):
-    """Pure audit function. Inputs are DataFrames and a parsed contract dictionary."""
+def audit_hospital_4(lines, invoices, contract, line_context=None, hospital=4):
+    """Pure audit function for the structurally compatible H3/H4 contracts."""
     meta = contract["contract_metadata"]
-    if meta["contract_number"] != "INS-H4-2024-2049":
-        raise ValueError("Expected Hospital 4 contract")
-    if any(s.get("weekend_uplift_percent") is not None for s in contract["services"]):
+    expected_contract = {3: "INS-H3-2024-0562", 4: "INS-H4-2024-2049"}
+    if hospital not in expected_contract or meta["contract_number"] != expected_contract[hospital]:
+        raise ValueError(f"Expected Hospital {hospital} contract")
+    if hospital == 4 and any(s.get("weekend_uplift_percent") is not None for s in contract["services"]):
         raise ValueError("Hospital 4 has no weekend uplifts")
     if meta["rounding_convention"] != "half_up_cent":
         raise ValueError("Unsupported rounding convention")
     first = datetime.strptime(meta["effective_from"], "%d %B %Y").date()
     last = datetime.strptime(meta["effective_to"], "%d %B %Y").date()
     services = {s["service_name"]: s for s in contract["services"]}
-    if len(services) != len(contract["services"]) or any(type(s["rate_cents"]) is not int for s in services.values()):
+    if len(services) != len(contract["services"]) or any(
+            type(s.get("rate_cents")) is not int and not s.get("effective_rates")
+            for s in services.values()):
         raise ValueError("Duplicate services or noninteger contract base rates")
     if lines["line_id"].duplicated().any():
         raise ValueError("line_id must be unique; repeated billing events with different IDs are retained")
@@ -702,7 +742,7 @@ def audit_hospital_4(lines, invoices, contract, line_context=None):
         for field in ("quantity", "unit_price_cents", "line_total_cents"):
             record[field] = integer(record[field], field)
         if record["quantity"] < 0:
-            raise ValueError("Negative quantities require credit-note semantics not specified by H4")
+            raise ValueError(f"Negative quantities require credit-note semantics not specified by H{hospital}")
         record["day"] = parse_date(record["service_date"])
         record["invoice_day"] = parse_date(record.get("invoice_date"))
         record["in_term"] = record["day"] is not None and first <= record["day"] <= last
@@ -710,6 +750,12 @@ def audit_hospital_4(lines, invoices, contract, line_context=None):
             record["rule"] = services.get(record["matched_service"])
             if record["rule"] is None:
                 record["notes"].append("Selected service missing from contract; service checks skipped")
+            elif hospital == 3:
+                record["rule"] = dict(record["rule"])
+                effective = record["rule"].get("effective_rates", [])
+                eligible = [entry for entry in effective if record["day"] is not None and
+                            parse_date(entry["effective_from"]) <= record["day"]]
+                record["rule"]["rate_cents"] = eligible[-1]["rate_cents"] if eligible else None
         elif record["service_status"] not in {"UNKNOWN", "UNSURE"}:
             raise ValueError(f"Unsupported service status: {record['service_status']}")
         if not joined:
@@ -765,6 +811,8 @@ def audit_hospital_4(lines, invoices, contract, line_context=None):
             missing.append("No contractual service date available")
         elif row["day"] is None:
             row["notes"].append("Provisional pricing despite malformed service date: contract-term eligibility unverified")
+            if rule.get("rate_cents") is None:
+                missing.append("Malformed date prevents selecting an effective-dated contract rate")
             if any(rule.get(k) is not None for k in
                    ("threshold_quantity", "bundle_with", "volume_threshold_1",
                     "daily_cap", "exclusion_with")):
@@ -1092,8 +1140,53 @@ def audit_hospital_4(lines, invoices, contract, line_context=None):
     return submission, line_debug, invoice_debug, stats
 
 
-def run_hospital_4(diagnostics=False):
-    lines = pd.read_csv(ROOT / "claude matching service/hospital_4_line_items_matched.csv", dtype=str, keep_default_na=False)
+def audit_hospital_3(lines, invoices, contract, line_context=None):
+    return audit_hospital_4(lines, invoices, contract, line_context, hospital=3)
+
+
+def run_hospital_3():
+    lines = pd.read_csv(ROOT / "service matches/hospital_3_line_items_matched.csv",
+                        dtype=str, keep_default_na=False)
+    originals = pd.read_csv(ROOT / "invoices/hospital_3_line_items.csv", dtype=str,
+                            keep_default_na=False)
+    if not lines[list(originals.columns)].equals(originals):
+        raise ValueError("Hospital 3 matched file differs from original invoice lines")
+    invoices = pd.read_csv(ROOT / "invoices/hospital_3_invoices.csv", dtype=str,
+                           keep_default_na=False)
+    contract = json.loads((ROOT / "extracted contract rule/hospital_3_services.json")
+                          .read_text(encoding="utf-8"))
+    contexts = {}
+    source_headers = []
+    for index, text in enumerate((ROOT / "invoices/hospital_3_invoices.jsonl")
+                                 .read_text(encoding="utf-8").splitlines()):
+        source = json.loads(text)
+        header = {key: str(source[key]) for key in invoices.columns}
+        source_headers.append(header)
+        for item in source["line_items"]:
+            line_id = item["line_id"]
+            if line_id in contexts:
+                raise ValueError("Duplicate Hospital 3 line identifier in JSONL")
+            contexts[line_id] = dict(header, source_record=index, original=item)
+    if source_headers != invoices.to_dict("records"):
+        raise ValueError("Hospital 3 JSONL headers disagree with invoice CSV")
+    if set(contexts) != set(lines["line_id"]):
+        raise ValueError("Hospital 3 JSONL line coverage disagrees with matched CSV")
+    for row in originals.to_dict("records"):
+        if any(str(contexts[row["line_id"]]["original"][key]) != value
+               for key, value in row.items()):
+            raise ValueError("Hospital 3 JSONL line fields disagree with CSV")
+
+    submission, line_debug, invoice_debug, stats = audit_hospital_3(
+        lines, invoices, contract, contexts)
+    output = ROOT / "outputs"
+    output.mkdir(exist_ok=True)
+    csv_write(submission, output / "hospital_3_prediction.csv")
+    print(f"Hospital 3: {len(submission)} invoices, {stats['Flagged invoices']} flagged. "
+          "Saved outputs/hospital_3_prediction.csv")
+
+
+def run_hospital_4():
+    lines = pd.read_csv(ROOT / "service matches/hospital_4_line_items_matched.csv", dtype=str, keep_default_na=False)
     originals = pd.read_csv(ROOT / "invoices/hospital_4_line_items.csv", dtype=str, keep_default_na=False)
     if not lines[list(originals.columns)].equals(originals):
         raise ValueError("Matched file differs from original invoice lines")
@@ -1120,28 +1213,6 @@ def run_hospital_4(diagnostics=False):
     output = ROOT / "outputs"
     output.mkdir(exist_ok=True)
     csv_write(submission, output / "hospital_4_prediction.csv")
-    if diagnostics:
-        csv_write(line_debug, output / "hospital_4_line_audit.csv")
-        csv_write(invoice_debug, output / "hospital_4_invoice_audit.csv")
-    counts = Counter(e for row in submission for e in json.loads(row["error_category"]))
-    summary = {
-        "counts": stats,
-        "error_categories": {c: counts[c] for c in ERROR_CATEGORIES},
-        "assumptions": [
-            "Cumulative utilisation is contract-wide across patients over the term, counting identified billed units including nonpayable units. H4 8.3-8.5 does not explicitly specify that scope or treatment.",
-            "Exclusion windows include both endpoints of the stated number of days.",
-            "Reviewed UNKNOWN services are treated as uncontracted and not payable.",
-            "JSONL provides original record context for reused invoice IDs; submission totals aggregate those records by ID. Out-of-term dated services are not payable; malformed dates are never guessed; fixed-rate totals may be provisional."
-        ],
-        "limitations": [
-            "At user request, malformed-date lines with no date-dependent rate/billability rules are priced using contract rate and quantity. These invoice totals are provisional; malformed_service_date remains flagged and contract-term eligibility is unverified.",
-            "Service matches are supplied evidence, including price-based inferences; confidence scores are not calibrated accuracy.",
-            "No Hospital 4 ground-truth labels are available; this is a contract-based audit, not an accuracy evaluation.",
-            "flagged=0 means no detected error, not approval when expected_total_cents is unavailable."
-        ]
-    }
-    if diagnostics:
-        (output / "hospital_4_audit_summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print(f"Hospital 4: {len(submission)} invoices, {stats['Flagged invoices']} flagged. Saved outputs/hospital_4_prediction.csv")
 
 
@@ -1598,8 +1669,8 @@ def audit_hospital_5(lines, invoices, contract, line_context=None):
     return submission, line_debug, invoice_debug, stats
 
 
-def run_hospital_5(diagnostics=False):
-    lines = pd.read_csv(ROOT / "claude matching service/hospital_5_line_items_matched.csv", dtype=str, keep_default_na=False)
+def run_hospital_5():
+    lines = pd.read_csv(ROOT / "service matches/hospital_5_line_items_matched.csv", dtype=str, keep_default_na=False)
     originals = pd.read_csv(ROOT / "invoices/hospital_5_line_items.csv", dtype=str, keep_default_na=False)
     if not lines[list(originals.columns)].equals(originals):
         raise ValueError("Matched file differs from original invoice lines")
@@ -1626,29 +1697,6 @@ def run_hospital_5(diagnostics=False):
     output = ROOT / "outputs"
     output.mkdir(exist_ok=True)
     csv_write(submission, output / "hospital_5_prediction.csv")
-    counts = Counter(e for row in submission for e in json.loads(row["error_category"]))
-    summary = {
-        "counts": stats,
-        "error_categories": {c: counts[c] for c in ERROR_CATEGORIES},
-        "assumptions": [
-            "H5 8.1 explicitly pools term utilisation across patients/facilities/tiers. Interpret subsequent units as prior-line billed utilisation, including nonpayable units; threshold-crossing semantics are not explicit.",
-            "Interpret H5 exclusion windows as same-patient, bidirectional and inclusive; Section 9 does not explicitly specify scope or direction. Use invoice facility because the supplied lines have no facility field.",
-            "Reviewed UNKNOWN services are treated as uncontracted and not payable.",
-            "JSONL provides original record context for reused invoice IDs; submission totals aggregate those records by ID. Out-of-term dated services are not payable; malformed dates are never guessed; fixed-rate totals may be provisional."
-        ],
-        "limitations": [
-            "At user request, malformed-date lines with no date-dependent rate/billability rules are priced using contract rate and quantity. These invoice totals are provisional; malformed_service_date remains flagged and contract-term eligibility is unverified.",
-            "Service matches are supplied evidence, including price-based inferences; confidence scores are not calibrated accuracy.",
-            "No Hospital 5 ground-truth labels are available; this is a contract-based audit, not an accuracy evaluation.",
-            "flagged=0 means no detected error, not approval when expected_total_cents is unavailable."
-        ]
-    }
-    report = "# Hospital 5 audit report\n\nRun: `python -B src/audit_invoices.py --hospital 5 --diagnostics`. Predictions are saved in `outputs/hospital_5_prediction.csv`.\n\n"
-    report += "## Counts\n\n" + "\n".join(f"- {k}: {v}" for k,v in stats.items())
-    report += "\n\n## Error categories (distinct invoice IDs)\n\n" + "\n".join(f"- {k}: {counts[k]}" for k in ERROR_CATEGORIES)
-    report += "\n\n## Assumptions and limitations\n\n" + "\n".join("- " + x for x in summary["assumptions"] + summary["limitations"])
-    if diagnostics:
-        (ROOT / "Hospital5_Audit_Report.md").write_text(report + "\n", encoding="utf-8")
     print(f"Hospital 5: {len(submission)} invoices, {stats['Flagged invoices']} flagged. Saved outputs/hospital_5_prediction.csv")
 
 
@@ -1661,7 +1709,7 @@ def read_csv(path):
 def build_submission():
     columns, _ = read_csv(ROOT / "submission_template.csv")
     combined = []
-    for hospital in (4, 5):
+    for hospital in (2, 3, 4, 5):
         fields, rows = read_csv(ROOT / f"outputs/hospital_{hospital}_prediction.csv")
         if fields != columns:
             raise ValueError(f"Hospital {hospital}: columns differ from template")
@@ -1696,7 +1744,7 @@ def build_submission():
         raise ValueError("Repeated invoice IDs across hospitals")
     destination = ROOT / "outputs/submission.csv"
     with destination.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=columns)
+        writer = csv.DictWriter(stream, fieldnames=columns, lineterminator="\n")
         writer.writeheader()
         writer.writerows(combined)
     missing = sum(row["expected_total_cents"] == "" for row in combined)
@@ -1706,26 +1754,47 @@ def build_submission():
 def main():
     parser = argparse.ArgumentParser(description="Audit hospital invoices")
     target = parser.add_mutually_exclusive_group(required=True)
-    target.add_argument("--hospital", type=int, choices=(1, 4, 5))
-    target.add_argument("--submission", action="store_true", help="Audit Hospitals 4 and 5, then validate and combine their predictions")
+    target.add_argument("--hospital", type=int, choices=(1, 2, 3, 4, 5))
+    target.add_argument("--all", action="store_true",
+                        help="Audit Hospitals 1-5 and build the Hospital 2-5 submission")
+    target.add_argument("--submission", action="store_true",
+                        help="Audit Hospitals 2-5, then combine their predictions")
+    target.add_argument("--build-submission", action="store_true",
+                        help="Combine existing Hospital 2-5 predictions without rerunning audits")
     parser.add_argument("--evaluate", action="store_true", help="Hospital 1 evaluation")
-    parser.add_argument("--diagnostics", action="store_true", help="Explicitly save additional diagnostics/report")
     args = parser.parse_args()
-    if args.hospital != 1 and args.evaluate:
-        parser.error("--evaluate applies only to Hospital 1")
-    if args.submission:
-        run_hospital_4(diagnostics=args.diagnostics)
-        run_hospital_5(diagnostics=args.diagnostics)
+    if args.evaluate and not (args.hospital == 1 or args.all):
+        parser.error("--evaluate applies only with --hospital 1 or --all")
+    if args.all:
+        previous = sys.argv
+        sys.argv = [previous[0]] + (["--evaluate"] if args.evaluate else [])
+        try:
+            run_hospital_1()
+        finally:
+            sys.argv = previous
+        run_hospital_2()
+        run_hospital_3()
+        run_hospital_4()
+        run_hospital_5()
+        build_submission()
+    elif args.submission:
+        run_hospital_2()
+        run_hospital_3()
+        run_hospital_4()
+        run_hospital_5()
+        build_submission()
+    elif args.build_submission:
         build_submission()
     elif args.hospital == 1:
         previous = sys.argv
-        sys.argv = [previous[0]] + (["--evaluate"] if args.evaluate else []) + (["--diagnostics"] if args.diagnostics else [])
+        sys.argv = [previous[0]] + (["--evaluate"] if args.evaluate else [])
         try:
             run_hospital_1()
         finally:
             sys.argv = previous
     else:
-        {4: run_hospital_4, 5: run_hospital_5}[args.hospital](diagnostics=args.diagnostics)
+        {2: run_hospital_2, 3: run_hospital_3, 4: run_hospital_4,
+         5: run_hospital_5}[args.hospital]()
 
 
 if __name__ == "__main__":

@@ -4,40 +4,40 @@ I used these prompts in this order:
 
 | Step | Prompt | Purpose |
 | --- | --- | --- |
-| 1 | [extract_rules_codex.txt](extract_rules_codex.txt) | Use Codex to extract contract services and billing rules into JSON. |
-| 2 | [service_matching_claude.txt](service_matching_claude.txt) | Use Claude to match invoice descriptions to the contract services. |
+| 1 | [extract_rules_codex.txt](extract_rules_codex.txt) | Use Codex to write the python code to extract contract services and billing rules into JSON. |
+| 2 | [match_services_codex.txt](match_services_codex.txt) | Use Codex to implement and verify deterministic local service matching. |
 | 3 | [audit_invoices_codex.txt](audit_invoices_codex.txt) | Use Codex to implement and check the Python audit. |
 
 ## Reproduce the same submission
 
-The code and saved Claude matches are already included. You do not need to send the prompts again or use an API key. Keep the original files in `contracts/`, `invoices/` and `claude matching service/` unchanged.
+The runtime regenerates service matches locally. You do not need to send the prompts again or use an API key. Keep the original files in `contracts/` and `invoices/` unchanged.
 
 With Python 3.11 installed, open PowerShell in the repository root and run:
 
 ```powershell
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements.txt
-.venv/Scripts/python -B src/extract_rules.py --hospital 4
-.venv/Scripts/python -B src/extract_rules.py --hospital 5
-.venv/Scripts/python -B src/audit_invoices.py --submission
+.venv/Scripts/python -B src/run_all.py
 ```
 
-This extracts the rules, runs the audits for Hospitals 4 and 5, and combines their predictions into `outputs/submission.csv`. The result should contain **1,885 rows, with 139 flagged invoices**. Existing generated files are overwritten.
+This regenerates rules, service matches and predictions for Hospitals 1-5, then combines Hospitals 2-5 into `outputs/submission.csv`. The result contain **3,942 rows, with 285 flagged invoices**. Existing generated files are overwritten.
 
-
-## Reproduce Hospital 1 predictions
-
-After setup, run:
+The same workflow can be inspected as three explicit stages:
 
 ```powershell
-.venv/Scripts/python -B src/extract_rules.py --hospital 1
-.venv/Scripts/python -B src/audit_invoices.py --hospital 1
+.venv/Scripts/python -B src/extract_rules.py --all
+.venv/Scripts/python -B src/match_services.py --all
+.venv/Scripts/python -B src/audit_invoices.py --all
+
+ # Optional but recommended integrity validation
+.venv/Scripts/python -B src/validate_all.py
 ```
 
-This writes `outputs/hospital_1_prediction.csv` with **913 rows and 58 flagged invoices**. Hospital 1 is used for development and is not included in the final submission. The results are explained in the [evaluation report](../Hospital1_Evaluation_Report.md).
+Each stage also accepts `--hospital 1`, `--hospital 2`, `--hospital 3`, `--hospital 4` or `--hospital 5` instead of `--all`.
+
 
 ## If you reuse the prompts
 
-Replace `HOSPITAL` with `1`, `4` or `5` and supply the files listed in each prompt. The matching prompt returns JSON, which must be converted to the matched CSV format before auditing; that conversion is not automated here.
+Replace `HOSPITAL` with a number from 1 to 5 when using a prompt for one hospital, or use `--all` to process every hospital.
 
-Rerunning Claude may produce different matches. Use the included matched CSVs to reproduce the saved result.
+These prompts document how Codex assisted with development only. The finished pipeline runs locally using deterministic Python and does not send contracts, invoices, or patient data to Codex or any other model.
